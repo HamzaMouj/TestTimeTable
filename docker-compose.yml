@@ -1,0 +1,30 @@
+version: '3'
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/schedule
+    networks:
+      - timetable-net
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+    networks:
+      - timetable-net
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - timetable-net
+
+networks:
+  timetable-net:
+    driver: bridge
