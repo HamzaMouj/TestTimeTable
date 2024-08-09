@@ -28,24 +28,29 @@ app.get('/schedule', async (req, res) => {
 
 app.post('/schedule', async (req, res) => {
   try {
-    console.log('Request body:', req.body); // Log the incoming request body
+    console.log('Request body:', req.body); 
     const newBlock = new Schedule(req.body);
     await newBlock.save();
     res.json(newBlock);
   } catch (error) {
-    console.error('Error creating schedule:', error); // Log the error
+    console.error('Error creating schedule:', error);
     res.status(500).send(error);
   }
 });
 
 app.put('/schedule/:id', async (req, res) => {
   try {
-    const updatedBlock = await Schedule.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedBlock = await Schedule.findOneAndUpdate(
+      { id: req.params.id },
+      req.body,
+      { new: true }
+    );
     res.json(updatedBlock);
   } catch (error) {
+    console.error('Error updating schedule:', error);
     res.status(500).send(error);
   }
-});
+})
 
 app.delete('/schedule/:id', async (req, res) => {
   try {
@@ -56,7 +61,6 @@ app.delete('/schedule/:id', async (req, res) => {
     res.status(500).send(error);
   }
 });
-
 app.listen(3000, () => {
   console.log('Server is running on port 3000');
 });

@@ -12,7 +12,7 @@
           <td class="person-name">{{ person.name }}</td>
           <td v-for="day in days" :key="day.name" :data-day="day.name" class="day-cell">
             <div v-if="day.name !== 'Sat' && day.name !== 'Sun'" @click="startDrag(person, day)" class="add-block">
-              <!-- Hidden button for adding a new block -->
+              
             </div>
             <draggable
               v-for="block in getBlocksForDay(person.id, day.name)"
@@ -20,16 +20,14 @@
               class="block-container"
               :block="block"
               @dragend="onDragEnd"
-              
             >
               <div class="block" :style="{ backgroundColor: block.color }">
                 {{ block.name }}
               </div>
             </draggable>
-            
             <button class="delete-button" :key="block.id" v-for="block in getBlocksForDay(person.id, day.name)" @click.stop="deleteBlock(block.id)">
-    <i class="fas fa-trash-alt"></i>
-  </button>
+              <i class="fas fa-trash-alt"></i>
+            </button>
           </td>
         </tr>
       </tbody>
@@ -40,7 +38,6 @@
 </template>
 
 <script>
-
 import { defineComponent } from 'vue';
 import SchedulePopup from './SchedulePopup.vue';
 import Draggable from './DraggableSection.vue';
@@ -80,19 +77,14 @@ export default defineComponent({
   },
   methods: {
     getBlocksForDay(personId, day) {
-      const filteredBlocks = this.scheduleBlocks.filter(block => block.personId === personId && block.day === day);
-      console.log(`Blocks for person ${personId} on day ${day}:`, filteredBlocks); // Log filtered blocks
-      return filteredBlocks;
+      return this.scheduleBlocks.filter(block => block.personId === personId && block.day === day);
     },
     startDrag(person, day) {
-      console.log('Starting drag for person:', person, 'and day:', day);
       this.newBlockPerson = person;
       this.newBlockDay = day;
       this.showPopup = true;
     },
     createBlock(newBlock) {
-      console.log('New block to be created:', newBlock);
-
       axios.post('http://localhost:3000/schedule', newBlock)
         .then(response => {
           this.scheduleBlocks.push(response.data);
@@ -104,16 +96,15 @@ export default defineComponent({
         });
     },
     async onDragEnd({ block, newDay, newPersonId }) {
-      const validDrop = newDay && newPersonId;
-
-      if (validDrop) {
+      if (newDay && newPersonId) {
         block.day = newDay;
         block.personId = newPersonId;
 
         try {
           const response = await axios.put(`http://localhost:3000/schedule/${block.id}`, block);
-          console.log('Block updated successfully:', response.data);
-          this.fetchSchedule(); // Refresh the schedule
+          this.fetchSchedule(); 
+          console.log(response)
+      
         } catch (error) {
           console.error('Error updating block:', error);
         }
@@ -122,21 +113,26 @@ export default defineComponent({
       }
     },
     async onResizeEnd({ block, width, height }) {
-      console.log('Resize ended for block:', block);
       block.width = width;
       block.height = height;
 
+      const cellWidth = 100; 
+      const numberOfDays = Math.ceil(block.width / cellWidth);
+
+      const initialDayIndex = this.days.findIndex(day => Array.isArray(block.day) ? block.day[0] : block.day === day.name);
+      const newDays = this.days.slice(initialDayIndex, initialDayIndex + numberOfDays).map(day => day.name);
+
+      block.day = newDays.length === 1 ? newDays[0] : newDays;
+
       try {
         const response = await axios.put(`http://localhost:3000/schedule/${block.id}`, block);
-        console.log('Block updated successfully:', response.data);
-        this.fetchSchedule(); // Refresh the schedule
+        this.fetchSchedule(); 
+        console.log(response)
       } catch (error) {
         console.error('Error updating block:', error);
-        this.fetchSchedule(); // Refresh the schedule
       }
     },
     deleteBlock(blockId) {
-
       this.blockToDelete = blockId;
       this.showDeletePopup = true;
     },
@@ -146,7 +142,7 @@ export default defineComponent({
         this.scheduleBlocks = this.scheduleBlocks.filter(block => block.id !== blockId);
         this.showDeletePopup = false;
         this.blockToDelete = null;
-        this.fetchSchedule(); // Refresh the schedule
+        this.fetchSchedule(); 
       } catch (error) {
         console.error('Error deleting block:', error);
       }
@@ -158,7 +154,6 @@ export default defineComponent({
     fetchSchedule() {
       axios.get('http://localhost:3000/schedule')
         .then(response => {
-          console.log('Fetched schedule blocks:', response.data); // Log fetched blocks
           this.scheduleBlocks = response.data;
         })
         .catch(error => {
@@ -228,15 +223,6 @@ th {
   height: 100%;
   cursor: pointer;
 }
-.block {
-  color: white;
-  padding: 10px;
-  box-sizing: border-box;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s, top 0.2s, left 0.2s;
-  position: relative;
-}
 
 .delete-button {
   position: absolute;
@@ -254,10 +240,10 @@ th {
 .block button:hover {
   background-color: darkred;
 }
+
 .add-block:hover {
   background-color: rgba(0, 0, 0, 0.1);
 }
-
 
 .disabled-cell {
   background-color: #9b9b9b;

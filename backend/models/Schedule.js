@@ -2,14 +2,15 @@ const mongoose = require('mongoose');
 const Counter = require('./Counter');
 
 const scheduleSchema = new mongoose.Schema({
-  id: { type: Number, unique: true },
+  id: { type: Number, unique: true }, 
   name: { type: String, required: true },
   personId: { type: Number, required: true },
-  day: { type: mongoose.Schema.Types.Mixed, required: true }, // Accept both string and array of strings
+  day: { type: String, required: true },
   w: { type: Number, required: false },
   h: { type: Number, required: false },
   color: { type: String, required: true },
-});
+}); 
+
 
 scheduleSchema.pre('save', async function(next) {
   const doc = this;
