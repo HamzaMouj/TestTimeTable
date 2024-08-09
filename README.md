@@ -23,19 +23,19 @@ This project is an interactive schedule table application built with Vue.js (fro
 ### 1. Clone the Repository
 
 
-git clone https://github.com/HamzaMouj/TestTimeTable.git
-cd TestTimeTable
+- git clone https://github.com/HamzaMouj/TestTimeTable.git
+- cd TestTimeTable
 
 ### 2.A. Frontend Setup
 
-cd frontend
-npm install
-
+- cd frontend
+- npm install
+  
 ### 2.B. Backend Setup
 
-cd backend
-npm install
+- cd backend
+- npm install
 
 ### 3. Running the App 
 
-docker-compose up --build 
+- docker-compose up --build 
