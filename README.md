@@ -14,16 +14,17 @@ This project is an interactive schedule table application built with Vue.js (fro
 
 ## Prerequisites
 
-- Node.js and npm installed.
+- Node.js and npm installed. (I am using 16.13.0)
 - Docker and Docker Compose installed.
+- MoongoDBCompass should be installed too.
 
 ## Setup
 
 ### 1. Clone the Repository
 
 
-git clone https://github.com/yourusername/schedule-app.git
-cd schedule-app
+git clone https://github.com/HamzaMouj/TestTimeTable.git
+cd TestTimeTable
 
 ### 2.A. Frontend Setup
 
@@ -37,4 +38,4 @@ npm install
 
 ### 3. Running the App 
 
-docker-compose up --build
+docker-compose up --build 
