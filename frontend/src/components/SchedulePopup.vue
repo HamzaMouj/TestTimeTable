@@ -1,13 +1,18 @@
 <template>
-  <div class="popup">
-    <form @submit.prevent="save">
-    <div class="inputs">
-      <input v-model="name" placeholder="Block Name" required />
-      <input class="color-picker" v-model="color" type="color" placeholder="Color" required />
+  <div class="popup-overlay" @click="$emit('close')">
+    <div class="popup" @click.stop>
+      <form @submit.prevent="save">
+        <h2>Edit Block</h2>
+        <div class="inputs">
+          <input v-model="name" placeholder="Block Name" required />
+          <input class="color-picker" v-model="color" type="color" placeholder="Color" required />
+        </div>
+        <div class="buttons">
+          <button type="submit" class="save-button">Save</button>
+          <button type="button" @click.prevent="$emit('close')" class="cancel-button">Cancel</button>
+        </div>
+      </form>
     </div>
-      <button type="submit">Save</button>
-      <button @click.prevent="$emit('close')">Cancel</button>
-    </form>
   </div>
 </template>
 
@@ -38,54 +43,96 @@ export default {
 </script>
 
 <style>
-.popup {
+.popup-overlay {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px); /* Blurs everything behind the popup */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
 }
 
+/* Popup styling */
+.popup {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 400px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Popup form styling */
 .popup form {
   display: flex;
   flex-direction: column;
-  gap:8px;
+  gap: 16px;
+}
+
+.popup h2 {
+  margin: 0 0 10px;
+  font-size: 20px;
+  text-align: center;
 }
 
 .popup input {
-  margin-bottom: 10px;
-  padding: 10px;
+  padding: 12px;
   width: 100%;
   border: 1px solid #ddd;
   border-radius: 4px;
+  font-size: 16px;
+}
+
+.popup .buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .popup button {
-  padding: 10px;
-  background-color: #4caf50;
-  color: white;
-  width: 100%;
+  padding: 12px;
+  font-size: 16px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  flex: 1;
 }
 
-.popup button:hover {
+.save-button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.save-button:hover {
   background-color: #45a049;
 }
-.inputs{
+
+.cancel-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #e53935;
+}
+
+.inputs {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 16px;
 }
+
 .color-picker {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -99,6 +146,18 @@ export default {
 .color-picker:focus {
   outline: none;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Popup fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 </style>

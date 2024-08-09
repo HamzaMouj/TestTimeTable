@@ -1,5 +1,6 @@
 <template>
-    <div class="delete-popup">
+  <div class="popup-overlay" @click="$emit('close')">
+    <div class="delete-popup" @click.stop>
       <h2>Confirm Delete</h2>
       <p>Are you sure you want to delete this block?</p>
       <div class="buttons">
@@ -7,7 +8,8 @@
         <button class="delete" @click="confirmDelete">Delete</button>
       </div>
     </div>
-  </template>
+  </div>
+</template>
   
   <script>
   export default {
@@ -22,48 +24,91 @@
   };
   </script>
   
-  <style scoped>
-  .delete-popup {
-
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
-  backdrop-filter: blur(10px); /* Blur effect */
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
+  <style scoped>/* Blurred background overlay */
+  .popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px); /* Blurs everything behind the popup */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+  }
   
+  /* Delete Popup Styling */
+  .delete-popup {
+    background: rgba(255, 255, 255, 0.85);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    max-width: 350px;
+    width: 100%;
+    text-align: center;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  .delete-popup h2 {
+    margin-bottom: 15px;
+    font-size: 20px;
+    color: #333;
+  }
+  
+  .delete-popup p {
+    margin-bottom: 20px;
+    font-size: 16px;
+    color: #666;
+  }
   
   .buttons {
     display: flex;
     justify-content: space-between;
+    gap: 10px;
   }
-  .cancel{
-    padding: 10px 20px;
+  
+  .cancel {
+    padding: 12px;
     background-color: #4caf50;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    flex: 1;
+    transition: background-color 0.3s ease;
   }
-
+  
   .cancel:hover {
     background-color: #3b8b3e;
   }
-
+  
   .delete {
-    padding: 10px 20px;
+    padding: 12px;
     background-color: #ff0404;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    flex: 1;
+    transition: background-color 0.3s ease;
   }
   
- .delete:hover {
-    background-color: #f14949;
+  .delete:hover {
+    background-color: #e53935;
   }
+  
+  /* Popup fade-in animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  
   </style>
