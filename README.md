@@ -16,7 +16,7 @@ This project is an interactive schedule table application built with Vue.js (fro
 
 - Node.js and npm installed. (I am using 16.13.0)
 - Docker and Docker Compose installed.
-- MoongoDBCompass should be installed too.
+- MongoDBCompass should be installed too.
 
 ## Setup
 
