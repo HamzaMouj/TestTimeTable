@@ -13,10 +13,14 @@
 <script>
 export default {
   props: {
-    block: Object,
+    block: {
+      type: Object,
+      required: true
+    }
   },
   data() {
     return {
+      localWidth: this.block.width,
       isDragging: false,
       isResizing: false,
       position: { x: 0, y: 0 },
@@ -24,6 +28,11 @@ export default {
       initialPosition: { x: 0, y: 0 },
       initialSize: { width: 0, height: 0 },
     };
+  },
+  watch: {
+    'block.width': function(newWidth) {
+      this.localWidth = newWidth;
+    }
   },
   computed: {
     draggableStyle() {
@@ -96,23 +105,14 @@ export default {
         this.isResizing = false;
         document.removeEventListener('mousemove', this.onResize);
         document.removeEventListener('mouseup', this.stopResize);
-        this.$emit('resizeend', { block: this.block, width: this.newWidth, height: this.block.height });
+        this.$emit('resizeend', { block: this.block, width: this.block.width });
       }
     },
     onResize(event) {
       if (this.isResizing) {
         const dx = event.clientX - this.initialMousePos.x;
-        this.newWidth = this.initialSize.width + dx;
-
-        // Calculate the number of days the block spans based on the new width
-        const cellWidth = 100; // Adjust this value to match the actual cell width in your table
-        const numberOfDays = Math.ceil(this.newWidth / cellWidth);
-
-        // Update the block's days array based on the new width
-        const initialDayIndex = this.$parent.days.findIndex(day => day.name === this.block.day);
-        const newDays = this.$parent.days.slice(initialDayIndex, initialDayIndex + numberOfDays).map(day => day.name);
-
-        this.$emit('update-block-days', { blockId: this.block.id, newDays });
+        this.localWidth = this.initialSize.width + dx;
+        this.$emit('update-block-width', this.localWidth);
       }
     },
   },
@@ -129,7 +129,7 @@ export default {
 .resize-handle {
   width: 10px;
   height: 10px;
-  background: #ccc;
+  background: #052479;
   position: absolute;
   bottom: 0;
   right: 0;

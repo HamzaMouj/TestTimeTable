@@ -11,7 +11,7 @@
         <tr :data-person-id="person.id" v-for="person in people" :key="person.id">
           <td class="person-name">{{ person.name }}</td>
           <td v-for="day in days" :key="day.name" :data-day="day.name" class="day-cell">
-            <div v-if="day.name !== 'Sat' && day.name !== 'Sun'" @click="startDrag(person, day)" class="add-block">
+            <div v-if="day.name !== 'Sat' && day.name !== 'Sun'" @click="startDrag(person, day)" class="add-block" :class="{ disabled: getBlocksForDay(person.id, day.name).length > 0 }">
               
             </div>
             <draggable
@@ -20,6 +20,7 @@
               class="block-container"
               :block="block"
               @dragend="onDragEnd"
+              @update-block-width="updateBlockWidth" 
             >
               <div class="block" :style="{ backgroundColor: block.color }">
                 {{ block.name }}
@@ -34,6 +35,10 @@
     </table>
     <delete-popup v-if="showDeletePopup" :blockId="blockToDelete" @close="cancelDelete" @delete="confirmDelete" />
     <schedule-popup v-if="showPopup" @close="showPopup = false" @save="createBlock" :day="newBlockDay.name" :personId="newBlockPerson.id" />
+    <div class="info-box">
+  <i class="fas fa-info-circle"></i>
+  <span>If you drag your block on Saturday or Sunday, or outside the table, it'll count as a delete request.</span>
+</div>
   </div>
 </template>
 
@@ -73,6 +78,9 @@ export default defineComponent({
       newBlockDay: null,
       showDeletePopup: false,
       blockToDelete: null,
+      block: {
+        width: 100 
+      }
     };
   },
   methods: {
@@ -80,10 +88,13 @@ export default defineComponent({
       return this.scheduleBlocks.filter(block => block.personId === personId && block.day === day);
     },
     startDrag(person, day) {
-      this.newBlockPerson = person;
-      this.newBlockDay = day;
-      this.showPopup = true;
-    },
+    if (this.getBlocksForDay(person.id, day.name).length > 0) {
+      return;
+    }
+    this.newBlockPerson = person;
+    this.newBlockDay = day;
+    this.showPopup = true;
+  },
     createBlock(newBlock) {
       axios.post('http://localhost:3000/schedule', newBlock)
         .then(response => {
@@ -112,26 +123,25 @@ export default defineComponent({
         this.deleteBlock(block.id);
       }
     },
-    async onResizeEnd({ block, width, height }) {
-      block.width = width;
-      block.height = height;
+    async onResizeEnd({ block, width }) {
+    block.width = width;
 
-      const cellWidth = 100; 
-      const numberOfDays = Math.ceil(block.width / cellWidth);
+    const cellWidth = 100; // Adjust this value to match the actual cell width
+    const numberOfDays = Math.ceil(block.width / cellWidth);
 
-      const initialDayIndex = this.days.findIndex(day => Array.isArray(block.day) ? block.day[0] : block.day === day.name);
-      const newDays = this.days.slice(initialDayIndex, initialDayIndex + numberOfDays).map(day => day.name);
+    const initialDayIndex = this.days.findIndex(day => Array.isArray(block.day) ? block.day[0] : block.day === day.name);
+    const newDays = this.days.slice(initialDayIndex, initialDayIndex + numberOfDays).map(day => day.name);
 
-      block.day = newDays.length === 1 ? newDays[0] : newDays;
+    block.day = newDays.length === 1 ? newDays[0] : newDays;
 
-      try {
-        const response = await axios.put(`http://localhost:3000/schedule/${block.id}`, block);
-        this.fetchSchedule(); 
-        console.log(response)
-      } catch (error) {
-        console.error('Error updating block:', error);
-      }
-    },
+    try {
+      const response = await axios.put(`http://localhost:3000/schedule/${block.id}`, block);
+      console.log('Block updated successfully:', response.data);
+      this.fetchSchedule(); // Refresh the schedule
+    } catch (error) {
+      console.error('Error updating block:', error);
+    }
+  },
     deleteBlock(blockId) {
       this.blockToDelete = blockId;
       this.showDeletePopup = true;
@@ -146,6 +156,9 @@ export default defineComponent({
       } catch (error) {
         console.error('Error deleting block:', error);
       }
+    },
+    updateBlockWidth(newWidth) {
+      this.block.width = newWidth;
     },
     cancelDelete() {
       this.showDeletePopup = false;
@@ -245,8 +258,8 @@ th {
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-.disabled-cell {
-  background-color: #9b9b9b;
+.disabled {
+  background-color: #ffffff;
   pointer-events: none;
 }
 
@@ -257,5 +270,26 @@ th {
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s;
+}
+.info-box {
+  display: flex;
+  align-items: center;
+  background-color: #e7f3fe;
+  color: #31708f;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 20px;
+  font-size: 14px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.info-box i {
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.info-box span {
+  flex: 1;
+  line-height: 1.5;
 }
 </style>
